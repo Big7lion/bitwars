@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+  <div id="app"></div>
+  <script>
+    const unit = 32,
+      width = unit * 8,
+      height = unit * 8,
+      length = width * height,
+      travelLength = length / unit,
+      max = 2 ** unit - 1,
+      step = 1;
+    const compareBits = Array.from({ length: unit }).map((_, index) => {
+      const target = "1" + Array.from({ length: index }).fill(0).join("");
+      return parseInt(target, 2);
+    }).reverse();
+
+    console.time("计时器2");
+
+    console.timeEnd("计时器2");
+
+    const wrapper = document.createDocumentFragment();
+    const app = document.getElementById("app");
+    app.style.width = step * width + 'px';
+    app.style.height = step * height + 'px';
+
+
+    const initialDataFlow = () => {
+      console.time("计时器2");
+      const buffer = new ArrayBuffer(length);
+      let dataView = new DataView(buffer);
+      for (let i = 0; i < travelLength; i++) {
+        dataView.setUint32(i * unit, Math.round(Math.random() * max));
+      }
+      return dataView;
+      console.timeEnd("计时器2");
+    }
+
+
+    const appendView = () => {
+      // console.time("计时器2");
+      const dataView = initialDataFlow();
+      for (let i = 0; i < travelLength; i++) {
+        const node = document.createElement('div')
+        node.classList.add('element')
+        node.style.height = step + 'px'
+        node.style.width = step * unit + 'px'
+        const value = dataView.getUint32(i * unit);
+        let string = []
+        for (let i = 0; i < unit; i++) {
+          const c = (value & compareBits[i]) >> (unit - i - 1);
+          const color = c ? '#333' : '#eee';
+          string.push(`${color} 0, ${color} ${step * (i + 1)}px`)
+        }
+        string = string.join(',')
+        node.style.background = `linear-gradient(to right, ${string})`
+        app.appendChild(node);
+      }
+      // console.timeEnd("计时器2");
+    }
+
+    const resetView = () => {
+      app.innerHTML = '';
+    }
+
+    const fpsGenerator = () => {
+      let lastFameTime = Date.now();
+      let allFrameCount = 0;
+      let frame = 0;
+      let lastTime = lastFameTime;
+      const fpsNode = document.createElement('div');
+      document.body.appendChild(fpsNode);
+      fpsNode.classList.add('fps');
+      return {
+        count: () => {
+          let now = Date.now();
+          let fs = (now - lastFameTime);
+          let fps = Math.round(1000 / fs);
+          lastFameTime = now;
+          allFrameCount++;
+          frame++;
+
+          if (now > 1000 + lastTime) {
+            let fps = Math.round((frame * 1000) / (now - lastTime));
+            fpsNode.innerHTML = "FPS: " + fps;
+
+            frame = 0;
+            lastTime = now;
+          };
+        }
+      }
+    }
+
+
+
+    const fpsCounter = fpsGenerator();
+    const play = () => {
+      requestAnimationFrame(() => {
+        resetView();
+        appendView();
+        fpsCounter.count();
+        play();
+      })
+    }
+    play();
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #ddd;
+    }
+
+    #app {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      transform: rotateZ(45deg);
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .element {
+      display: inline-block;
+    }
+
+    .fps {
+      position: fixed;
+      top: 0;
+      right: 0;
+      color: red;
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: #666;
+      color: white;
+    }
+  </style>
+</body>
+
+</html>

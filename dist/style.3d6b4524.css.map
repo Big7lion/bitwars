@@ -1,0 +1,1 @@
+{"mappings":"AAAA;EACE;EACA;EACA","sources":["style.scss"],"sourcesContent":["#app {\n  width: 200px;\n  height: 200px;\n  border: 1px solid red;\n}"],"names":[],"version":3,"file":"style.3d6b4524.css.map","sourceRoot":"/__parcel_source_root/"}
