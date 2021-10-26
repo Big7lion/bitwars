@@ -11,8 +11,8 @@
   <div id="app"></div>
   <script>
     const unit = 32,
-      width = unit * 8,
-      height = unit * 8,
+      width = unit * 16,
+      height = unit * 9,
       length = width * height,
       travelLength = length / unit,
       max = 2 ** unit - 1,
@@ -22,10 +22,6 @@
       return parseInt(target, 2);
     }).reverse();
 
-    console.time("计时器2");
-
-    console.timeEnd("计时器2");
-
     const wrapper = document.createDocumentFragment();
     const app = document.getElementById("app");
     app.style.width = step * width + 'px';
@@ -33,19 +29,16 @@
 
 
     const initialDataFlow = () => {
-      console.time("计时器2");
       const buffer = new ArrayBuffer(length);
       let dataView = new DataView(buffer);
       for (let i = 0; i < travelLength; i++) {
         dataView.setUint32(i * unit, Math.round(Math.random() * max));
       }
       return dataView;
-      console.timeEnd("计时器2");
     }
 
 
     const appendView = () => {
-      // console.time("计时器2");
       const dataView = initialDataFlow();
       for (let i = 0; i < travelLength; i++) {
         const node = document.createElement('div')
@@ -53,17 +46,25 @@
         node.style.height = step + 'px'
         node.style.width = step * unit + 'px'
         const value = dataView.getUint32(i * unit);
-        let string = []
-        for (let i = 0; i < unit; i++) {
-          const c = (value & compareBits[i]) >> (unit - i - 1);
-          const color = c ? '#333' : '#eee';
-          string.push(`${color} 0, ${color} ${step * (i + 1)}px`)
-        }
-        string = string.join(',')
+        const tempArr = Array.from({ length: unit }).reduce((prev, current, currentIndex) => {
+          const tempVar = (value & compareBits[currentIndex]) >> (unit - currentIndex - 1);
+          if (currentIndex > 0 && prev[prev.length - 1] && prev[prev.length - 1].value === tempVar) {
+            prev[prev.length - 1].to = currentIndex
+            return prev
+          } else {
+            return [...prev, {
+              value: tempVar,
+              to: currentIndex
+            }]
+          }
+        }, [])
+        const string = tempArr.map(r => {
+          const color = r.value ? '#333' : '#ddd';
+          return `${color} 0, ${color} ${step * (r.to + 1)}px`
+        }).join(',')
         node.style.background = `linear-gradient(to right, ${string})`
         app.appendChild(node);
       }
-      // console.timeEnd("计时器2");
     }
 
     const resetView = () => {
@@ -116,6 +117,7 @@
       margin: 0;
       padding: 0;
     }
+
     body {
       background-color: #ddd;
     }
@@ -129,8 +131,8 @@
       margin: auto;
       display: flex;
       flex-wrap: wrap;
-      transform: rotateZ(45deg);
-      border-radius: 50%;
+      transform: rotateZ(0);
+      /* border-radius: 50%; */
       overflow: hidden;
     }
 
