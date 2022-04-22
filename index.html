@@ -10,9 +10,9 @@
 <body>
   <div id="app"></div>
   <script>
-    const unit = 4,
-      width = unit * 8,
-      height = unit * 8,
+    const unit = 16,
+      width = unit * 4,
+      height = unit * 4,
       length = width * height,
       travelLength = length / unit,
       max = 2 ** unit - 1,
@@ -136,7 +136,7 @@
       display: flex;
       flex-wrap: wrap;
       transform: rotateZ(0);
-      /* border-radius: 50%; */
+      border-radius: 50%;
       overflow: hidden;
     }
 
